@@ -2,8 +2,8 @@ package emplyeemangagement;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.*;
 import java.awt.event.*;
+import java.sql.*;
 
 public class Remove extends JFrame implements ActionListener {
     Choice cEmpId;
@@ -11,20 +11,32 @@ public class Remove extends JFrame implements ActionListener {
     JLabel lblname, lblphone, lblemail;
 
     Remove() {
+        // M�u n?n tr?ng
         getContentPane().setBackground(Color.WHITE);
         setLayout(null);
 
-        JLabel labelempId = new JLabel("Employee Id");
-        labelempId.setBounds(50, 50, 100, 30);
+        // Ti�u d?
+        JLabel heading = new JLabel("Remove Employee");
+        heading.setBounds(330, 20, 400, 40);
+        heading.setFont(new Font("SansSerif", Font.BOLD, 28));
+        heading.setForeground(new Color(30, 30, 30));
+        add(heading);
+
+        // Label ch?n ID
+        JLabel labelempId = new JLabel("Select Employee ID:");
+        labelempId.setBounds(100, 100, 180, 30);
+        labelempId.setFont(new Font("SansSerif", Font.PLAIN, 18));
         add(labelempId);
 
+        // Dropdown ch?n ID
         cEmpId = new Choice();
-        cEmpId.setBounds(200, 50, 150, 30);
+        cEmpId.setBounds(300, 100, 200, 30);
         add(cEmpId);
 
+        // Load danh s�ch nh�n vi�n
         try {
             Conn c = new Conn();
-            String query = "select * from employee";
+            String query = "SELECT * FROM employee";
             ResultSet rs = c.s.executeQuery(query);
             while (rs.next()) {
                 cEmpId.add(rs.getString("emID"));
@@ -33,105 +45,113 @@ public class Remove extends JFrame implements ActionListener {
             e.printStackTrace();
         }
 
-        JLabel labelname = new JLabel("Name");
-        labelname.setBounds(50, 100, 100, 30);
+        // Label & th�ng tin nh�n vi�n
+        JLabel labelname = new JLabel("Name:");
+        labelname.setBounds(100, 160, 100, 30);
+        labelname.setFont(new Font("SansSerif", Font.PLAIN, 18));
         add(labelname);
 
         lblname = new JLabel();
-        lblname.setBounds(200, 100, 100, 30);
+        lblname.setBounds(250, 160, 250, 30);
+        lblname.setFont(new Font("SansSerif", Font.PLAIN, 16));
         add(lblname);
 
-        JLabel labelphone = new JLabel("Phone");
-        labelphone.setBounds(50, 150, 100, 30);
+        JLabel labelphone = new JLabel("Phone:");
+        labelphone.setBounds(100, 200, 100, 30);
+        labelphone.setFont(new Font("SansSerif", Font.PLAIN, 18));
         add(labelphone);
 
         lblphone = new JLabel();
-        lblphone.setBounds(200, 150, 100, 30);
+        lblphone.setBounds(250, 200, 250, 30);
+        lblphone.setFont(new Font("SansSerif", Font.PLAIN, 16));
         add(lblphone);
 
-        JLabel labelemail = new JLabel("Email");
-        labelemail.setBounds(50, 200, 100, 30);
+        JLabel labelemail = new JLabel("Email:");
+        labelemail.setBounds(100, 240, 100, 30);
+        labelemail.setFont(new Font("SansSerif", Font.PLAIN, 18));
         add(labelemail);
 
         lblemail = new JLabel();
-        lblemail.setBounds(200, 200, 100, 30);
+        lblemail.setBounds(250, 240, 250, 30);
+        lblemail.setFont(new Font("SansSerif", Font.PLAIN, 16));
         add(lblemail);
 
+        // L?y th�ng tin ban d?u
+        loadEmployeeDetails(cEmpId.getSelectedItem());
+
+        // Khi ch?n nh�n vi�n kh�c
+        cEmpId.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent ie) {
+                loadEmployeeDetails(cEmpId.getSelectedItem());
+            }
+        });
+
+        // N�t X�a
+        delete = new JButton("Delete");
+        delete.setBounds(220, 320, 150, 40);
+        delete.setBackground(new Color(220, 53, 69));
+        delete.setForeground(Color.WHITE);
+        delete.setFont(new Font("SansSerif", Font.BOLD, 16));
+        delete.setFocusPainted(false);
+        delete.setBorderPainted(false);
+        delete.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        delete.addActionListener(this);
+        add(delete);
+
+        // N�t Quay l?i
+        back = new JButton("Back");
+        back.setBounds(400, 320, 150, 40);
+        back.setBackground(new Color(33, 37, 41));
+        back.setForeground(Color.WHITE);
+        back.setFont(new Font("SansSerif", Font.BOLD, 16));
+        back.setFocusPainted(false);
+        back.setBorderPainted(false);
+        back.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        back.addActionListener(this);
+        add(back);
+
+        // C?u h�nh c?a s?
+        setSize(750, 450);
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
+
+    private void loadEmployeeDetails(String empId) {
         try {
             Conn c = new Conn();
-            String query = "select * from employee where emID = ?";
+            String query = "SELECT * FROM employee WHERE emID = ?";
             PreparedStatement ps = c.c.prepareStatement(query);
-            ps.setString(1, cEmpId.getSelectedItem());
+            ps.setString(1, empId);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
+            if (rs.next()) {
                 lblname.setText(rs.getString("name"));
                 lblphone.setText(rs.getString("phone"));
                 lblemail.setText(rs.getString("email"));
+            } else {
+                lblname.setText("");
+                lblphone.setText("");
+                lblemail.setText("");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        cEmpId.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent ie) {
-                try {
-                    Conn c = new Conn();
-                    String query = "select * from employee where emID = ?";
-                    PreparedStatement ps = c.c.prepareStatement(query);
-                    ps.setString(1, cEmpId.getSelectedItem());
-                    ResultSet rs = ps.executeQuery();
-                    while (rs.next()) {
-                        lblname.setText(rs.getString("name"));
-                        lblphone.setText(rs.getString("phone"));
-                        lblemail.setText(rs.getString("email"));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        delete = new JButton("Delete");
-        delete.setBounds(80, 300, 100, 30);
-        delete.setBackground(Color.BLACK);
-        delete.setForeground(Color.WHITE);
-        delete.addActionListener(this);
-        add(delete);
-
-        back = new JButton("Back");
-        back.setBounds(220, 300, 100, 30);
-        back.setBackground(Color.BLACK);
-        back.setForeground(Color.WHITE);
-        back.addActionListener(this);
-        add(back);
-
-        ImageIcon i1 = new ImageIcon(ClassLoader.getSystemResource("icon/delete.png"));
-        Image i2 = i1.getImage().getScaledInstance(600, 400, Image.SCALE_DEFAULT);
-        ImageIcon i3 = new ImageIcon(i2);
-        JLabel image = new JLabel(i3);
-        image.setBounds(350, 0, 600, 400);
-        add(image);
-
-        setSize(1000, 400);
-        setLocation(300, 150);
-        setVisible(true);
     }
 
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == delete) {
             try {
                 Conn c = new Conn();
-                String query = "delete from employee where emID = ?";
+                String query = "DELETE FROM employee WHERE emID = ?";
                 PreparedStatement ps = c.c.prepareStatement(query);
                 ps.setString(1, cEmpId.getSelectedItem());
                 ps.executeUpdate();
-                JOptionPane.showMessageDialog(null, "Employee Information Deleted Successfully");
+                JOptionPane.showMessageDialog(null, "Employee deleted successfully!");
                 setVisible(false);
                 new Home();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else {
+        } else if (ae.getSource() == back) {
             setVisible(false);
             new Home();
         }
